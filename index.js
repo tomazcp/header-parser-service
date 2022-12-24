@@ -5,7 +5,7 @@
 require('dotenv').config();
 const express = require('express');
 const app = express();
-const { whoamiRouter } = require('./routes/whoami');
+const { whoamiRouter } = require('./routes/whoami.js');
 
 // enable CORS (https://en.wikipedia.org/wiki/Cross-origin_resource_sharing)
 // so that your API is remotely testable by FCC
@@ -16,7 +16,7 @@ app.use(cors({ optionsSuccessStatus: 200 })); // some legacy browsers choke on 2
 app.use(express.static('public'));
 
 // use routes
-app.use('/api/whoami', whoamiRouter);
+// app.use('/api/whoami', whoamiRouter);
 
 // http://expressjs.com/en/starter/basic-routing.html
 app.get('/', function (req, res) {
@@ -27,6 +27,20 @@ app.get('/', function (req, res) {
 app.get('/api/hello', function (req, res) {
   res.json({ greeting: 'hello API' });
 });
+
+const headerParser = (headers) => {
+  const host = headers.host;
+  const lang = headers['accept-language'];
+  const software = headers['sec-ch-ua-platform'];
+
+  return {
+    ipaddress: host,
+    language: lang,
+    software,
+  };
+};
+
+app.get('/api/whoami', (req, res) => res.json(headerParser(req.headers)));
 
 // listen for requests :)
 var listener = app.listen(/** process.env.PORT||*/ 3000, function () {
